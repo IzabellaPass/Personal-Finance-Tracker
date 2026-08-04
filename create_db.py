@@ -1,30 +1,35 @@
+"""Create an empty finance database without overwriting existing data."""
+
 import sqlite3
+from pathlib import Path
 
-conn = sqlite3.connect("finance.db")
-cursor = conn.cursor()
 
-cursor.execute("""
-CREATE TABLE transactions (
-    id INTEGER PRIMARY KEY,
-    date TEXT,
-    type TEXT,   -- income / expense
-    category TEXT,
-    amount REAL
-)
-""")
+database_path = Path(__file__).with_name("finance.db")
 
-data = [
-    ("2024-01-01", "expense", "food", 20),
-    ("2024-01-02", "expense", "transport", 10),
-    ("2024-01-03", "income", "salary", 1000),
-    ("2024-01-04", "expense", "entertainment", 50),
-    ("2024-01-05", "expense", "food", 30),
-]
+with sqlite3.connect(database_path) as connection:
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS diaries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL COLLATE NOCASE UNIQUE,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    connection.execute("INSERT OR IGNORE INTO diaries(name) VALUES ('Il mio diario')")
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS transactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL,
+            type TEXT NOT NULL CHECK (type IN ('income', 'expense')),
+            category TEXT NOT NULL,
+            amount REAL NOT NULL CHECK (amount > 0),
+            description TEXT DEFAULT '',
+            transaction_time TEXT DEFAULT '',
+            diary_id INTEGER REFERENCES diaries(id)
+        )
+        """
+    )
 
-cursor.executemany(
-    "INSERT INTO transactions(date, type, category, amount) VALUES (?, ?, ?, ?)",
-    data
-)
-
-conn.commit()
-conn.close()
+print(f"Database ready: {database_path}")

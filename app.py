@@ -9,7 +9,7 @@ import streamlit as st
 
 
 DB_PATH = Path(__file__).with_name("finance.db")
-EXPENSE_CATEGORIES = ["Spesa", "Casa", "Trasporti", "Salute", "Svago", "Shopping", "Altro"]
+EXPENSE_CATEGORIES = ["Spesa", "Casa", "Trasporti", "Salute", "Divertimento", "Shopping", "Altro"]
 INCOME_CATEGORIES = ["Stipendio", "Freelance", "Rimborso", "Regalo", "Altro"]
 
 
